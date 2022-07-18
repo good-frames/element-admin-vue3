@@ -1,5 +1,7 @@
 import { TabItem } from '@/types/app'
 
+import { getToken, setToken } from '@/utils/storge'
+
 type TabAction = 'set' | 'del'
 
 type State = {
@@ -34,6 +36,14 @@ const mutations = {
 }
 
 const actions = {
+  /**
+   * 修改当前激活tab菜单页
+   * @param context
+   * @params param1 {type, tab}
+   * @param {TabItem} tab tab菜单项
+   * @param {String} type 操作类型 set: 设置当前激活标签页， del: 删除标签页
+   * @returns
+   */
   setTab: (context: any, { tab, type }:{tab: TabItem, type: TabAction}) => {
     const index = state.tabs.findIndex((t: TabItem) => t.path === tab.path)
     let path = context.state.activedTab

@@ -1,10 +1,15 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import permission from './permission'
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: '/',
+    redirect: '/main'
+  },
+  {
     path: '/login',
     name: 'login',
-    component: () => import(/* webpackChunkName: "login" */ '../views/login')
+    component: () => import(/* webpackChunkName: "login" */ '../views/login/index.vue')
   },
   {
     path: '/main',
@@ -35,5 +40,7 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+permission(router)
 
 export default router

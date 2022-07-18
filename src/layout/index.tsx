@@ -7,7 +7,7 @@ import SideBar from './SideBar'
 import TabBar from './TabBar'
 import Main from './Main.vue'
 
-import './styles/index.styl'
+import './index.styl'
 
 export default defineComponent({
   name: 'layout-main',

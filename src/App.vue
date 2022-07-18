@@ -1,6 +1,14 @@
 <template>
   <el-config-provider :size="size" :z-index="zIndex">
-    <router-view/>
+    <!-- <router-view/> -->
+    <router-view v-slot="{ Component }" class="layout-main__view">
+      <transition
+        name="fade-transform"
+        mode="out-in"
+      >
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </el-config-provider>
 </template>
 
@@ -22,10 +30,20 @@ export default defineComponent({
 })
 </script>
 
-<style lang="stylus">
-#app
-  font-family Avenir, Helvetica, Arial, sans-serif
-  -webkit-font-smoothing antialiased
-  -moz-osx-font-smoothing grayscale
-  color #2c3e50
+<style scoped lang="stylus">
+// .fade-enter-from
+//   transform translateX( -20px)
+//   opacity 0
+
+// .fade-enter-to,
+// .fade-leave-from
+//   transform translateX(0)
+
+// .fade-leave-to
+//   transform translateX(20px)
+//   opacity 0
+
+// .fade-enter-active,
+// .fade-leave-active
+//   transition all .3s ease-in-out
 </style>
