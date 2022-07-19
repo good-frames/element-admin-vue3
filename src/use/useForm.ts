@@ -6,5 +6,15 @@ export function useForm (form: object, rules: any) {
   const formRules = ref<FormRules>(rules)
   const formData = ref(form)
 
-  return { formRef, formData, formRules } as const
+  const validate = async () => {
+    await formRef.value?.validate()
+    return true
+  }
+
+  return {
+    formRef,
+    formData,
+    formRules,
+    validate
+  } as const
 }

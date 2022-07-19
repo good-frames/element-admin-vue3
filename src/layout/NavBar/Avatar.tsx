@@ -22,6 +22,10 @@ export default defineComponent({
       if (command === 'logout') {
         await logout()
         router.push({ name: 'login' })
+        return
+      }
+      if (command === 'user') {
+        router.push({ name: 'user' })
       }
     }
 
@@ -41,7 +45,9 @@ export default defineComponent({
             v-slots={{
               dropdown: () => (
                 <ElDropdownMenu>
-                  <ElDropdownItem>
+                  <ElDropdownItem
+                    command="user"
+                  >
                     <ElIcon><User></User></ElIcon>
                     <span>个人中心</span>
                   </ElDropdownItem>

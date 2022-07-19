@@ -7,7 +7,6 @@ const whiteList = [
 export default function permission (router:any) {
   router.beforeEach(async (to:any, from:any, next:any) => {
     const token = getToken()
-    console.log(token, to, from)
 
     if (token) {
       // 已登录

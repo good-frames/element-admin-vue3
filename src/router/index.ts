@@ -20,17 +20,27 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'about',
         name: 'about',
-        component: () => import(/* webpackChunkName: "login" */ '../views/about')
+        component: () => import(/* webpackChunkName: "login" */ '../views/about'),
+        meta: {
+          title: '关于'
+        }
       },
       {
         path: 'user',
         name: 'user',
-        component: () => import(/* webpackChunkName: "login" */ '../views/user')
+        component: () => import(/* webpackChunkName: "login" */ '../views/user'),
+        meta: {
+          title: '用户中心'
+        }
       },
       {
         path: 'home',
         name: 'home',
-        component: () => import(/* webpackChunkName: "login" */ '../views/home')
+        component: () => import(/* webpackChunkName: "login" */ '../views/home'),
+        meta: {
+          title: '首页',
+          affix: true
+        }
       }
     ]
   }

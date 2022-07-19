@@ -1,7 +1,14 @@
-export type TabItem = {
+export type ViewItem = {
   path: string
   name: string
-  close?: boolean
+  meta: {
+    title?: string
+    affix?: boolean
+    [key: string]: any
+  } | null
+  query: object,
+  params: object,
+  title: string
 }
 
 export type Menus = {

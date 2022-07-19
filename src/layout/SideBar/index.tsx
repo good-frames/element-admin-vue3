@@ -2,7 +2,7 @@ import { defineComponent, onMounted, Ref, ref } from 'vue'
 import { ElMenu, ElScrollbar } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-import { useActions, useStates } from '@/use/useVuexMap'
+import { useStates } from '@/use/useVuexMap'
 import { Menus } from '@/types/app'
 import { menus } from '@/config/menus'
 
@@ -31,38 +31,15 @@ export default defineComponent({
   setup () {
     const router = useRouter()
     const { sideBarCollapse, activedTab } = useStates('app', ['sideBarCollapse', 'activedTab'])
-    const { setTab } = useActions('app', ['setTab'])
 
     const menusRef: Ref<Array<Menus>> = ref(menus)
-
-    onMounted(async () => {
-      const tab = menusRef.value[0]
-      const path = await setTab({
-        type: 'set',
-        tab: {
-          path: tab.path,
-          name: tab.name,
-          close: false
-        }
-      })
-      router.push(path)
-    })
 
     // 点击菜单跳转路由
     const handleSelectMenu = async (index: string) => {
       // 后期增加需求在这里修改， 当前只做路由跳转
       if (!index) return
       const tab = findMenuItem(menusRef.value, index)
-
-      const path = await setTab({
-        type: 'set',
-        tab: {
-          path: tab.path,
-          name: tab.name,
-          close: true
-        }
-      })
-      router.push(path)
+      router.push(tab.path)
     }
 
     return () => {

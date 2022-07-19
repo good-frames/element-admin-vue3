@@ -46,7 +46,7 @@
         </ElFormItem>
       </ElForm>
       <div class="login__box_btns">
-        <ElButton type="primary" round class="submit" @click="handleLogin(loginFormRef)">登录</ElButton>
+        <ElButton type="primary" round class="submit" @click="handleLogin">登录</ElButton>
         <p class="link">
           <ElButton type="primary" link>忘记密码？</ElButton>
           <ElButton type="primary" link>去注册</ElButton>
@@ -60,8 +60,6 @@
 import { defineComponent, Ref, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElForm, ElFormItem, ElInput, ElIcon } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
-import type { LoginForm } from '@/types/user'
 
 import { useActions } from '@/use/useVuexMap'
 import { useForm } from '@/use/useForm'
@@ -79,7 +77,7 @@ export default defineComponent({
     const route = useRoute()
     const { login } = useActions('user', ['login'])
 
-    const { formRef: loginFormRef, formData: loginForm, formRules: loginRules } = useForm(
+    const { formRef: loginFormRef, formData: loginForm, formRules: loginRules, validate } = useForm(
       {
         loginName: '',
         password: ''
@@ -95,10 +93,9 @@ export default defineComponent({
     )
 
     // 登录
-    const handleLogin = async (formEl: FormInstance | undefined) => {
+    const handleLogin = async () => {
       try {
-        if (!formEl) return
-        await formEl.validate()
+        await validate()
         await login(loginForm.value)
 
         router.push({

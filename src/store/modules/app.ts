@@ -1,19 +1,18 @@
-import { TabItem } from '@/types/app'
+import type { ViewItem } from '@/types/app'
 
 import { getToken, setToken } from '@/utils/storge'
-
-type TabAction = 'set' | 'del'
 
 type State = {
   sideBarCollapse: boolean
   activedTab: string
-  tabs: Array<TabItem>
+  visitedViews: Array<ViewItem>
 }
 
 const state: State = {
   sideBarCollapse: false, // ?菜单展开收起状态， false: 展开状态，true：收起状态
   activedTab: '', // ?当前激活标签页path
-  tabs: [] // ?tabs标签菜单页
+
+  visitedViews: []
 }
 
 const mutations = {
@@ -21,14 +20,28 @@ const mutations = {
   SET_SIDEBAR_COLLAPSE: (state: State, sideBarCollapse: boolean) => {
     state.sideBarCollapse = sideBarCollapse
   },
-  // 添加添加标签页
-  ADD_TABS: (state: State, tab: TabItem) => {
-    state.tabs.push(tab)
+  // 添加标签页
+  ADD_VISITED_VIEW: (state: State, view: ViewItem) => {
+    if (state.visitedViews.some(v => v.path === view.path)) return
+    state.visitedViews.push({
+      path: view.path,
+      name: view.name,
+      meta: view.meta,
+      query: view.query,
+      params: view.params,
+      title: view.meta?.title || 'no-name'
+    })
   },
-  // 删除添加标签页
-  DEL_TABS: (state: State, index: number) => {
-    state.tabs.splice(index, 1)
+  // 删除标签页
+  DEL_VISITED_VIEW: (state: State, view: ViewItem) => {
+    for (const [i, v] of state.visitedViews.entries()) {
+      if (v.path === view.path) {
+        state.visitedViews.splice(i, 1)
+        break
+      }
+    }
   },
+
   // 设置当前激活标签页
   SET_ACTIVED_TAB: (state: State, path: string) => {
     state.activedTab = path
@@ -36,36 +49,30 @@ const mutations = {
 }
 
 const actions = {
-  /**
-   * 修改当前激活tab菜单页
-   * @param context
-   * @params param1 {type, tab}
-   * @param {TabItem} tab tab菜单项
-   * @param {String} type 操作类型 set: 设置当前激活标签页， del: 删除标签页
-   * @returns
-   */
-  setTab: (context: any, { tab, type }:{tab: TabItem, type: TabAction}) => {
-    const index = state.tabs.findIndex((t: TabItem) => t.path === tab.path)
-    let path = context.state.activedTab
-    if (type === 'set') {
-      if (index === -1) {
-        // 加入新的标签页
-        context.commit('ADD_TABS', tab)
-      }
-      // 设置当前激活标签页
-      path = tab.path
-    } else {
-      if (index !== -1) {
-        // 删除当前激活标签页
-        context.commit('DEL_TABS', index)
-      }
-      // 设置当前激活标签页
-      if (context.state.tabs.length && path === tab.path) {
-        path = state.tabs[context.state.tabs.length - 1].path
-      }
+  // 添加tab标签页
+  addView: (context: any, view: ViewItem) => {
+    context.dispatch('addVisitedView', view)
+  },
+  addVisitedView (context: any, view: ViewItem) {
+    context.commit('ADD_VISITED_VIEW', view)
+  },
+
+  // 删除tab标签页
+  async delView (context: any, view: ViewItem) {
+    const lastView = await context.dispatch('delVisitedView', view)
+    return lastView
+  },
+  delVisitedView (context: any, view: ViewItem) {
+    context.commit('DEL_VISITED_VIEW', view)
+    const views = context.state.visitedViews
+    if (views.length) {
+      return views[views.length - 1]
     }
+  },
+
+  // 设置当前激活tab标签页
+  setActivedTab (context: any, path: string) {
     context.commit('SET_ACTIVED_TAB', path)
-    return path
   }
 }
 

@@ -1,8 +1,8 @@
 <template>
   <div :class="['tabbar-item', { actived }]" @click="handleSelectTab">
-    <span class="tabbar-item__title">{{ info.name }}</span>
+    <span class="tabbar-item__title">{{ info.title }}</span>
     <ElIcon
-      v-if="info.close"
+      v-if="!isAffix(info)"
       class="tabbar-item__close"
       @click.stop="handleDelTab"
     >
@@ -14,9 +14,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 
-import { useActions } from '@/use/useVuexMap'
-import { TabItem } from '@/types/app'
-import { useRouter } from 'vue-router'
+import type { ViewItem } from '@/types/app'
 
 export default defineComponent({
   props: {
@@ -27,41 +25,28 @@ export default defineComponent({
     },
     // 标签信息
     info: {
-      type: Object as PropType<TabItem>,
+      type: Object as PropType<ViewItem>,
       required: true
     }
   },
-  setup (props) {
-    const router = useRouter()
-    const { setTab } = useActions('app', ['setTab'])
+  emits: ['change', 'delete'],
+  setup (props, { emit }) {
+    const isAffix = (tab: ViewItem) => tab.meta && tab.meta.affix
 
     // 切换tab标签页
     const handleSelectTab = async () => {
-      const path = await setTab({
-        type: 'set',
-        tab: {
-          path: props.info.path,
-          name: props.info.name
-        }
-      })
-      router.push(path)
+      emit('change', props.info)
     }
 
     // 删除tab标签页
     const handleDelTab = async () => {
-      const path = await setTab({
-        type: 'del',
-        tab: {
-          path: props.info.path,
-          name: props.info.name
-        }
-      })
-      router.push(path)
+      emit('delete', props.info)
     }
 
     return {
       handleSelectTab,
-      handleDelTab
+      handleDelTab,
+      isAffix
     }
   }
 })
@@ -71,6 +56,8 @@ export default defineComponent({
 .tabbar-item
   display flex
   align-items center
+  box-sizing border-box
+  height 30px
   margin 0 4px
   padding 6px 8px
   border-radius 4px 4px 0 0
