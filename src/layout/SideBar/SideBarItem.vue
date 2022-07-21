@@ -1,29 +1,35 @@
 <template>
-  <div>
-    <ElSubMenu v-if="menus.children && menus.children.length > 0" :index="menus.path || menus.name">
+  <div v-if="!isHidden(item)">
+     <ElMenuItem
+      v-if="hasOneShowingChild(item.children, item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)"
+      :index="resolvePath(onlyOneChild.path)"
+    >
+      <ElIcon>
+        <component :is="menuIcon(onlyOneChild)"></component>
+      </ElIcon>
       <template #title>
-        <ElIcon v-if="menus.icon">
-          <component :is="menus.icon"></component>
-        </ElIcon>
-        <span class="menu-title__text">{{ menus.name }}</span>
+        <span>{{ menuName(onlyOneChild) }}</span>
       </template>
-      <SideBarItem v-for="menu in menus.children" :key="menu.path" :menus="menu"></SideBarItem>
-    </ElSubMenu>
-      <ElMenuItem v-else :index="menus.path || menus.name">
+    </ElMenuItem>
+    <ElSubMenu v-else :index="item.path">
+      <template #title>
         <ElIcon>
-          <component :is="menus.icon"></component>
+          <component :is="menuIcon(item)"></component>
         </ElIcon>
-        <template #title>
-          <span>{{ menus.name }}</span>
-        </template>
-      </ElMenuItem>
+        <span class="menu-title__text">{{ menuName(item) }}</span>
+      </template>
+      <SideBarItem v-for="menu in item.children" :key="menu.path" :item="menu" :basePath="resolvePath(menu.path)"></SideBarItem>
+    </ElSubMenu>
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, Ref, ref } from 'vue'
+import { RouteRecordRaw } from 'vue-router'
 import { ElSubMenu, ElMenuItem, ElIcon } from 'element-plus'
 
+import { resolve } from '@/utils'
 import { Menus } from '@/types/app'
 
 export default defineComponent({
@@ -34,9 +40,68 @@ export default defineComponent({
     ElIcon
   },
   props: {
-    menus: {
-      type: Object as PropType<Menus>,
+    item: {
+      type: Object as PropType<RouteRecordRaw>,
       required: true
+    },
+    basePath: {
+      type: String,
+      default: ''
+    }
+  },
+  setup (props) {
+    const onlyOneChild = ref()
+
+    const resolvePath = (routePath: string) => {
+      return resolve(props.basePath, routePath)
+    }
+
+    const menuName = (menu: RouteRecordRaw) => {
+      return menu?.meta?.title
+    }
+    const menuIcon = (menu: RouteRecordRaw) => {
+      return menu?.meta?.icon
+    }
+    const hasOneShowingChild = (children = [], parent: RouteRecordRaw) => {
+      const showingChildren = children.filter((item: RouteRecordRaw) => {
+        if (item && item.meta && item.meta.hidden) {
+          return false
+        } else {
+          // Temp set(will be used if only has one showing child)
+          onlyOneChild.value = item
+          return true
+        }
+      })
+
+      // When there is only one child router, the child router is displayed by default
+      if (showingChildren.length === 1) {
+        return true
+      }
+
+      // Show parent if there are no child router to display
+      if (showingChildren.length === 0) {
+        onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
+        return true
+      }
+      return false
+    }
+
+    const hasChildren = (menu: RouteRecordRaw) => {
+      return menu.children && menu.children.length > 0
+    }
+
+    const isHidden = (menu: RouteRecordRaw) => {
+      return menu?.meta?.hidden || false
+    }
+
+    return {
+      resolvePath,
+      menuIcon,
+      menuName,
+      isHidden,
+      hasChildren,
+      hasOneShowingChild,
+      onlyOneChild
     }
   }
 })

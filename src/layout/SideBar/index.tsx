@@ -1,16 +1,16 @@
 import { defineComponent, onMounted, Ref, ref } from 'vue'
 import { ElMenu, ElScrollbar } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { RouteRecordRaw, useRouter } from 'vue-router'
 
 import { useStates } from '@/use/useVuexMap'
-import { Menus } from '@/types/app'
+import type { Menus } from '@/types/app'
 import { menus } from '@/config/menus'
 
 import SideBarItem from './SideBarItem.vue'
 
 import './sidebar.styl'
 
-const findMenuItem: (menus: Array<Menus>, path: string) => any = (menus, path) => {
+const findMenuItem: (menus: Array<RouteRecordRaw>, path: string) => any = (menus, path) => {
   for (let i = 0; i < menus.length; i++) {
     const menu = menus[i]
     if (menu.path === path) {
@@ -31,15 +31,16 @@ export default defineComponent({
   setup () {
     const router = useRouter()
     const { sideBarCollapse, activedTab } = useStates('app', ['sideBarCollapse', 'activedTab'])
+    const { routes } = useStates('permission', ['routes'])
 
-    const menusRef: Ref<Array<Menus>> = ref(menus)
+    const menusRef: Ref<Array<RouteRecordRaw>> = ref(routes)
 
     // 点击菜单跳转路由
     const handleSelectMenu = async (index: string) => {
       // 后期增加需求在这里修改， 当前只做路由跳转
       if (!index) return
-      const tab = findMenuItem(menusRef.value, index)
-      router.push(tab.path)
+      // const tab = findMenuItem(menusRef.value, index)
+      router.push(index)
     }
 
     return () => {
@@ -60,7 +61,7 @@ export default defineComponent({
             >
               {
                 menus.map(menu => {
-                  return <SideBarItem menus={menu}></SideBarItem>
+                  return <SideBarItem item={menu} basePath={menu.path}></SideBarItem>
                 })
               }
             </ElMenu>

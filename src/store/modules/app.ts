@@ -1,7 +1,5 @@
 import type { ViewItem } from '@/types/app'
 
-import { getToken, setToken } from '@/utils/storge'
-
 type State = {
   sideBarCollapse: boolean
   activedTab: string
@@ -12,7 +10,7 @@ const state: State = {
   sideBarCollapse: false, // ?菜单展开收起状态， false: 展开状态，true：收起状态
   activedTab: '', // ?当前激活标签页path
 
-  visitedViews: []
+  visitedViews: [] // ? tab标签页
 }
 
 const mutations = {

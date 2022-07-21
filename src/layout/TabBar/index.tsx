@@ -1,4 +1,4 @@
-import { defineComponent, onMounted, Ref, ref } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, Ref, ref, watch } from 'vue'
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { ElScrollbar } from 'element-plus'
 
@@ -19,15 +19,37 @@ export default defineComponent({
     const { setActivedTab, delView, addView } = useActions('app', ['setActivedTab', 'delView', 'addView'])
     const tabsRef: Ref<Array<ViewItem>> = ref(visitedViews)
 
-    onMounted(() => {
-      setActivedTab(route.path)
-      addView(route)
+    // onMounted(() => {
+    //   console.log('dddd')
+    //   setActivedTab(route.path)
+    //   addView(route)
+    // })
+
+    onUnmounted(() => {
+      console.log('tabbar-unmounted')
     })
 
-    onBeforeRouteUpdate(async (to) => {
-      setActivedTab(to.path)
-      addView(to)
+    watch(
+      () => router.currentRoute.value,
+      (now, old) => {
+        console.log(now, old)
+        setActivedTab(now.path)
+        addView(now)
+      },
+      { immediate: true }
+    )
+
+    const tabs = computed(() => {
+      return tabsRef.value.filter(tab => {
+        return tab.meta && !tab.meta.hidden
+      })
     })
+
+    // onBeforeRouteUpdate((to) => {
+    //   console.log('df')
+    //   setActivedTab(to.path)
+    //   addView(to)
+    // })
 
     const handleChangeTab = (tab: any) => {
       router.push(tab)
@@ -39,7 +61,7 @@ export default defineComponent({
     }
 
     return () => {
-      const tabbars = tabsRef.value
+      const tabbars = tabs.value
       return (
         <div class="layout-tabbar">
           <ElScrollbar style="height: 45px">

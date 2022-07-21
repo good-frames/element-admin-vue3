@@ -1,16 +1,17 @@
 import { defineComponent, PropType } from 'vue'
+import { RouteRecordRaw } from 'vue-router'
 import { ElSubMenu, ElMenuItem, ElIcon } from 'element-plus'
 
 // import SubMenu from './submenu'
 import SideBarItem from './SideBarItem'
 
-import { Menus } from '@/types/app'
+// import { Menus } from '@/types/app'
 
 export default defineComponent({
   name: 'SideBarItem',
   props: {
     menus: {
-      type: Object as PropType<Menus>,
+      type: Object as PropType<RouteRecordRaw>,
       required: true
     }
   },
@@ -19,7 +20,7 @@ export default defineComponent({
       if (props.menus.children && props.menus.children.length) {
         return (
           <ElSubMenu
-            index={props.menus.path || props.menus.name}
+            index={props.menus.path}
             v-slots={
               { title: () => <span>{props.menus.name}</span> }
             }
